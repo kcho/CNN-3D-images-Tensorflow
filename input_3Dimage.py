@@ -3,6 +3,7 @@
 # Reference: http://blog.naver.com/kjpark79/220783765651
 
 import os
+from os.path import join
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,18 +22,20 @@ FLAGS.data_dir = '/home/ikbeom/Desktop/DL/MNIST_simpleCNN/data'
 FLAGS.num_class = 4
 
 def get_filenames(data_set):
-i    global filenames
+    global filenames
     labels = []
 
-    with open(FLAGS.data_dir + '/labels.txt') as f:
+    # make list of labels from the text file : labels.txt
+    with open(join(FLAGS.data_dir, 'labels.txt'), 'rb') as f:
         for line in f:
             inner_list = [elt.strip() for elt in line.split(',')]
             labels += inner_list
 
+    # make list of filenames
     for i, label in enumerate(labels):
-        list = os.listdir(FLAGS.data_dir  + '/' + data_set + '/' + label)
+        filelist = os.listdir(join(FLAGS.data_dir, data_set, label))
         for filename in list:
-            filenames.append([label + '/' + filename, i])
+            filenames.append([join(label, filename), i])
 
     random.shuffle(filenames)
 
