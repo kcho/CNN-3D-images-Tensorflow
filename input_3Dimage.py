@@ -43,31 +43,34 @@ def get_filenames(data_set):
 def get_data_jpeg(sess, data_set, batch_size):
     global batch_index, filenames
 
-    if len(filenames) == 0: get_filenames(data_set) 
-    max = len(filenames)
+    # retrieve filenames if empty
+    if len(filenames) == 0: 
+        get_filenames(data_set) 
+
+    file_num = len(filenames)
 
     begin = batch_index
     end = batch_index + batch_size
 
-    if end >= max:
-        end = max
+    if end >= file_num:
+        end = file_num
         batch_index = 0
 
     x_data = np.array([], np.float32)
     y_data = np.zeros((batch_size, FLAGS.num_class)) # zero-filled list for 'one hot encoding'
     index = 0
 
+    imagePath = FLAGS.data_dir + '/' + data_set + '/' + filenames[i][0]
+    FA_org = nib.load(imagePath)
+    FA_data = FA_org.get_data()  # 256x256x40; numpy.ndarray
+
     for i in range(begin, end):
-        
-        imagePath = FLAGS.data_dir + '/' + data_set + '/' + filenames[i][0]
-        FA_org = nib.load(imagePath)
-        FA_data = FA_org.get_data()  # 256x256x40; numpy.ndarray
-        
         # TensorShape([Dimension(256), Dimension(256), Dimension(40)])                       
         resized_image = tf.image.resize_images(images=FA_data, size=(FLAGS.width,FLAGS.height), method=1)
 
         image = sess.run(resized_image)  # (256,256,40)
         x_data = np.append(x_data, np.asarray(image, dtype='float32')) # (image.data, dtype='float32')
+
         y_data[index][filenames[i][1]] = 1  # assign 1 to corresponding column (one hot encoding)
         index += 1
 
